@@ -17,12 +17,13 @@ class UserCard extends StatelessWidget {
       child: Card(
         child: Container(
           alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 3.0),
           width: 200,
           height: 200,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
+              Image.network(
                 "${user.image}",
                 width: 100.0,
                 height: 100.0,
@@ -34,7 +35,10 @@ class UserCard extends StatelessWidget {
               SizedBox(
                 height: 5.0,
               ),
-              Text("${user.email}"),
+              Text(
+                "${user.email}",
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),

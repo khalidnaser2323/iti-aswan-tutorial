@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iti_aswan_tutorial/components/user_card.dart';
+import 'package:iti_aswan_tutorial/data/users_service.dart';
 import 'package:iti_aswan_tutorial/models/user.dart';
 import 'package:iti_aswan_tutorial/screens/userDetails/user_details_screen.dart';
+import 'package:iti_aswan_tutorial/services/services_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,74 +14,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _counter = 0;
-  List<User> _usersList = [
-    User(
-      id: "1",
-      name: "Ahmed",
-      email: "a@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "2",
-      name: "Mohamed",
-      email: "m@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "3",
-      name: "Hussein",
-      email: "h@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "4",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "5",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "6",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "7",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "8",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "9",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "10",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-    User(
-      id: "11",
-      name: "Sara",
-      email: "s@gmail.com",
-      image: "assets/images/icon-5359553_1920.png",
-    ),
-  ];
+  Future<List<User>> _usersList;
+  List<User> users;
+  _getUsers() async {
+    _usersList = UserServices().getUsers();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUsers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,30 +60,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget getUserCard() {
-    List<Widget> items = List.generate(
-      _usersList.length,
-      (index) => UserCard(
-        user: _usersList[index],
-        onItemClick: (clickedUser) {
-          print('Clicked user ${clickedUser.name}');
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => UserDetailsScreen(
-                user: clickedUser,
+    return FutureBuilder<List<User>>(
+        future: _usersList,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Widget> items = List.generate(
+              snapshot.data.length,
+              (index) => UserCard(
+                user: snapshot.data[index],
+                onItemClick: (clickedUser) {
+                  print('Clicked user ${clickedUser.name}');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailsScreen(
+                        user: clickedUser,
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
 
-    return GridView.count(
-      crossAxisCount: 2,
-      children: items,
-      mainAxisSpacing: 5,
-      crossAxisSpacing: 5,
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-    );
+            return GridView.count(
+              crossAxisCount: 2,
+              children: items,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 
   Widget getHomeViewBody() {
